@@ -8,15 +8,14 @@ using Domain;
 
 namespace BLL.Factories
 {
-    public class WebFactory
+    public class BookFactory
     {
-        public AuthorDTO createBasicDTO(Author author)
+        public BookDTO createBasicDTO(Book book)
         {
-            return new AuthorDTO()
+            return new BookDTO()
             {
-                AuthorId = author.AuthorId,
-                FirstName = author.FirstName,
-                Lastname = author.Lastname
+                BookId = book.BookId,
+                Title = book.Title
                
             };
         }

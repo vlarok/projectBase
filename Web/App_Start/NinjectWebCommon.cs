@@ -2,6 +2,7 @@ using BLL.Factories;
 using BLL.Service;
 using DAL;
 using DAL.Repositories;
+using Domain;
 
 [assembly: WebActivatorEx.PreApplicationStartMethod(typeof(Web.App_Start.NinjectWebCommon), "Start")]
 [assembly: WebActivatorEx.ApplicationShutdownMethodAttribute(typeof(Web.App_Start.NinjectWebCommon), "Stop")]
@@ -68,11 +69,15 @@ namespace Web.App_Start
         {
             kernel.Bind<ApplicationDbContext>().To<ApplicationDbContext>().InRequestScope();
 
-            kernel.Bind<WebRepository>().To<WebRepository>().InRequestScope();
+            kernel.Bind<EFRepository<Author>>().To<EFRepository<Author>>().InRequestScope();
+            kernel.Bind<EFRepository<Book>>().To<EFRepository<Book>>().InRequestScope();
+            kernel.Bind<EFRepository<Publisher>>().To<EFRepository<Publisher>>().InRequestScope();
+            kernel.Bind<EFRepository<AuthorBook>>().To<EFRepository<AuthorBook>>().InRequestScope();
+            kernel.Bind<EFRepository<Comment>>().To<EFRepository<Comment>>().InRequestScope();
 
-            kernel.Bind<WebFactory>().To<WebFactory>().InRequestScope();
+            kernel.Bind<AuthorFactory>().To<AuthorFactory>().InRequestScope();
 
-            kernel.Bind<WebService>().To<WebService>().InRequestScope();
+            kernel.Bind<AuthorService>().To<AuthorService>().InRequestScope();
 
         }
     }

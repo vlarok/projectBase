@@ -13,9 +13,9 @@ namespace Web.Controllers.Api
     public class AuthorController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
-        private BLL.Service.WebService _service;
+        private BLL.Service.AuthorService _service;
 
-        public AuthorController(WebService service)
+        public AuthorController(AuthorService service)
         {
             _service = service;
         }
@@ -23,7 +23,7 @@ namespace Web.Controllers.Api
         // GET: api/Product
         public List<AuthorDTO> GetAuthors()
         {
-            return _service.GetDTOAuthors();
+            return _service.AllDto();
         }
     }
 }

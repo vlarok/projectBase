@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using BLL.Service;
 using DAL;
 using Domain;
 
@@ -13,13 +14,18 @@ namespace Web.Controllers
 {
     public class BookController : Controller
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
-
+        private BookService _service;
+        private PublisherService _publisher;
+        public BookController(BookService service, PublisherService publisher)
+        {
+            _service = service;
+            _publisher = publisher;
+        }
         // GET: Book
         public ActionResult Index()
         {
-            var books = db.Books.Include(b => b.Publisher);
-            return View(books.ToList());
+          //  var books = db.Books.Include(b => b.Publisher);
+            return View(_service.All());
         }
 
         // GET: Book/Details/5
@@ -29,7 +35,7 @@ namespace Web.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Book book = db.Books.Find(id);
+            Book book = _service.Find(id);
             if (book == null)
             {
                 return HttpNotFound();
@@ -40,7 +46,7 @@ namespace Web.Controllers
         // GET: Book/Create
         public ActionResult Create()
         {
-            ViewBag.PublisherId = new SelectList(db.Publishers, "PublisherId", "PublisherName");
+            ViewBag.PublisherId = new SelectList(_publisher.All(), "PublisherId", "PublisherName");
             return View();
         }
 
@@ -53,12 +59,11 @@ namespace Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Books.Add(book);
-                db.SaveChanges();
+                _service.Add(book);
                 return RedirectToAction("Index");
             }
 
-            ViewBag.PublisherId = new SelectList(db.Publishers, "PublisherId", "PublisherName", book.PublisherId);
+            ViewBag.PublisherId = new SelectList(_publisher.All(), "PublisherId", "PublisherName", book.PublisherId);
             return View(book);
         }
 
@@ -69,12 +74,12 @@ namespace Web.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Book book = db.Books.Find(id);
+            Book book = _service.Find(id);
             if (book == null)
             {
                 return HttpNotFound();
             }
-            ViewBag.PublisherId = new SelectList(db.Publishers, "PublisherId", "PublisherName", book.PublisherId);
+            ViewBag.PublisherId = new SelectList(_publisher.All(), "PublisherId", "PublisherName", book.PublisherId);
             return View(book);
         }
 
@@ -87,11 +92,10 @@ namespace Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(book).State = EntityState.Modified;
-                db.SaveChanges();
+                _service.Update(book);
                 return RedirectToAction("Index");
             }
-            ViewBag.PublisherId = new SelectList(db.Publishers, "PublisherId", "PublisherName", book.PublisherId);
+            ViewBag.PublisherId = new SelectList(_publisher.All(), "PublisherId", "PublisherName", book.PublisherId);
             return View(book);
         }
 
@@ -102,7 +106,7 @@ namespace Web.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Book book = db.Books.Find(id);
+            Book book = _service.Find(id);
             if (book == null)
             {
                 return HttpNotFound();
@@ -115,9 +119,7 @@ namespace Web.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Book book = db.Books.Find(id);
-            db.Books.Remove(book);
-            db.SaveChanges();
+            _service.Delete(id);
             return RedirectToAction("Index");
         }
 
@@ -125,7 +127,7 @@ namespace Web.Controllers
         {
             if (disposing)
             {
-                db.Dispose();
+                _service.Dispose();
             }
             base.Dispose(disposing);
         }

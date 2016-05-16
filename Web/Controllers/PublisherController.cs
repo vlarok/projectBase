@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using BLL.Service;
 using DAL;
 using Domain;
 
@@ -13,12 +14,16 @@ namespace Web.Controllers
 {
     public class PublisherController : Controller
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
+        private PublisherService _service;
 
+        public PublisherController(PublisherService service)
+        {
+            _service = service;
+        }
         // GET: Publisher
         public ActionResult Index()
         {
-            return View(db.Publishers.ToList());
+            return View(_service.All());
         }
 
         // GET: Publisher/Details/5
@@ -28,7 +33,7 @@ namespace Web.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Publisher publisher = db.Publishers.Find(id);
+            Publisher publisher = _service.Find(id);
             if (publisher == null)
             {
                 return HttpNotFound();
@@ -51,8 +56,7 @@ namespace Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Publishers.Add(publisher);
-                db.SaveChanges();
+                _service.Add(publisher);
                 return RedirectToAction("Index");
             }
 
@@ -66,7 +70,7 @@ namespace Web.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Publisher publisher = db.Publishers.Find(id);
+            Publisher publisher = _service.Find(id);
             if (publisher == null)
             {
                 return HttpNotFound();
@@ -83,8 +87,7 @@ namespace Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(publisher).State = EntityState.Modified;
-                db.SaveChanges();
+                _service.Update(publisher);
                 return RedirectToAction("Index");
             }
             return View(publisher);
@@ -97,7 +100,7 @@ namespace Web.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Publisher publisher = db.Publishers.Find(id);
+            Publisher publisher = _service.Find(id);
             if (publisher == null)
             {
                 return HttpNotFound();
@@ -110,9 +113,9 @@ namespace Web.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Publisher publisher = db.Publishers.Find(id);
-            db.Publishers.Remove(publisher);
-            db.SaveChanges();
+            
+            _service.Delete(id);
+           
             return RedirectToAction("Index");
         }
 
@@ -120,7 +123,7 @@ namespace Web.Controllers
         {
             if (disposing)
             {
-                db.Dispose();
+                _service.Dispose();
             }
             base.Dispose(disposing);
         }

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using BLL.Service;
 using DAL;
 using Domain;
 
@@ -13,13 +14,21 @@ namespace Web.Controllers
 {
     public class CommentController : Controller
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
+        private CommentService _service;
+        private AuthorService _author;
+        private BookService _book;
 
+        public CommentController(CommentService service, AuthorService author, BookService book)
+        {
+            _service = service;
+            _book = book;
+            _author = author;
+        }
         // GET: Comment
         public ActionResult Index()
         {
-            var comments = db.Comments.Include(c => c.Author).Include(c => c.Book);
-            return View(comments.ToList());
+           // var comments = db.Comments.Include(c => c.Author).Include(c => c.Book);
+            return View(_service.All());
         }
 
         // GET: Comment/Details/5
@@ -29,7 +38,7 @@ namespace Web.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Comment comment = db.Comments.Find(id);
+            Comment comment = _service.Find(id);
             if (comment == null)
             {
                 return HttpNotFound();
@@ -40,8 +49,8 @@ namespace Web.Controllers
         // GET: Comment/Create
         public ActionResult Create()
         {
-            ViewBag.AuthorId = new SelectList(db.Authors, "AuthorId", "FirstName");
-            ViewBag.BookId = new SelectList(db.Books, "BookId", "Title");
+            ViewBag.AuthorId = new SelectList(_author.All(), "AuthorId", "FirstName");
+            ViewBag.BookId = new SelectList(_book.All(), "BookId", "Title");
             return View();
         }
 
@@ -54,13 +63,12 @@ namespace Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Comments.Add(comment);
-                db.SaveChanges();
+                _service.Add(comment);
                 return RedirectToAction("Index");
             }
 
-            ViewBag.AuthorId = new SelectList(db.Authors, "AuthorId", "FirstName", comment.AuthorId);
-            ViewBag.BookId = new SelectList(db.Books, "BookId", "Title", comment.BookId);
+            ViewBag.AuthorId = new SelectList(_author.All(), "AuthorId", "FirstName", comment.AuthorId);
+            ViewBag.BookId = new SelectList(_author.All(), "BookId", "Title", comment.BookId);
             return View(comment);
         }
 
@@ -71,13 +79,13 @@ namespace Web.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Comment comment = db.Comments.Find(id);
+            Comment comment = _service.Find(id);
             if (comment == null)
             {
                 return HttpNotFound();
             }
-            ViewBag.AuthorId = new SelectList(db.Authors, "AuthorId", "FirstName", comment.AuthorId);
-            ViewBag.BookId = new SelectList(db.Books, "BookId", "Title", comment.BookId);
+            ViewBag.AuthorId = new SelectList(_author.All(), "AuthorId", "FirstName", comment.AuthorId);
+            ViewBag.BookId = new SelectList(_book.All(), "BookId", "Title", comment.BookId);
             return View(comment);
         }
 
@@ -90,12 +98,11 @@ namespace Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(comment).State = EntityState.Modified;
-                db.SaveChanges();
+                _service.Update(comment);
                 return RedirectToAction("Index");
             }
-            ViewBag.AuthorId = new SelectList(db.Authors, "AuthorId", "FirstName", comment.AuthorId);
-            ViewBag.BookId = new SelectList(db.Books, "BookId", "Title", comment.BookId);
+            ViewBag.AuthorId = new SelectList(_author.All(), "AuthorId", "FirstName", comment.AuthorId);
+            ViewBag.BookId = new SelectList(_book.All(), "BookId", "Title", comment.BookId);
             return View(comment);
         }
 
@@ -106,7 +113,7 @@ namespace Web.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Comment comment = db.Comments.Find(id);
+            Comment comment = _service.Find(id);
             if (comment == null)
             {
                 return HttpNotFound();
@@ -119,9 +126,8 @@ namespace Web.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Comment comment = db.Comments.Find(id);
-            db.Comments.Remove(comment);
-            db.SaveChanges();
+
+            _service.Delete(id);
             return RedirectToAction("Index");
         }
 
@@ -129,7 +135,7 @@ namespace Web.Controllers
         {
             if (disposing)
             {
-                db.Dispose();
+                _service.Dispose();
             }
             base.Dispose(disposing);
         }

@@ -8,17 +8,17 @@ using System.Web;
 using System.Web.Mvc;
 using BLL.Service;
 using DAL;
+using DAL.Interfaces;
+using DAL.Repositories;
 using Domain;
 
 namespace Web.Controllers
 {
     public class AuthorController : Controller
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
-        private WebService _service;
-
-      
-      public AuthorController(WebService service)
+        private AuthorService _service;
+       
+      public AuthorController(AuthorService service)
         {
             _service = service;
         }
@@ -26,7 +26,7 @@ namespace Web.Controllers
         // GET: Author
         public ActionResult Index()
         {
-            return View(_service.GetAllAuthors());
+            return View(_service.All());
         }
 
         // GET: Author/Details/5
@@ -36,7 +36,7 @@ namespace Web.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Author author = db.Authors.Find(id);
+            Author author = _service.Find(id);
             if (author == null)
             {
                 return HttpNotFound();
@@ -55,12 +55,12 @@ namespace Web.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "AuthorId,FirstName,Lastname")] Author author)
+        public ActionResult Create(Author author)
         {
             if (ModelState.IsValid)
             {
-                db.Authors.Add(author);
-                db.SaveChanges();
+                _service.Add(author);
+               
                 return RedirectToAction("Index");
             }
 
@@ -74,7 +74,7 @@ namespace Web.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Author author = db.Authors.Find(id);
+            Author author = _service.Find(id);
             if (author == null)
             {
                 return HttpNotFound();
@@ -87,12 +87,12 @@ namespace Web.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "AuthorId,FirstName,Lastname")] Author author)
+        public ActionResult Edit(Author author)
         {
             if (ModelState.IsValid)
             {
-                db.Entry(author).State = EntityState.Modified;
-                db.SaveChanges();
+                _service.Update(author);
+                
                 return RedirectToAction("Index");
             }
             return View(author);
@@ -105,7 +105,7 @@ namespace Web.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Author author = db.Authors.Find(id);
+            Author author = _service.Find(id);
             if (author == null)
             {
                 return HttpNotFound();
@@ -118,9 +118,9 @@ namespace Web.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Author author = db.Authors.Find(id);
-            db.Authors.Remove(author);
-            db.SaveChanges();
+          
+            _service.Delete(id);
+            
             return RedirectToAction("Index");
         }
 
@@ -128,7 +128,7 @@ namespace Web.Controllers
         {
             if (disposing)
             {
-                db.Dispose();
+                _service.Dispose();
             }
             base.Dispose(disposing);
         }

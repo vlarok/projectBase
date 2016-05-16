@@ -1,4 +1,4 @@
-/*!
+﻿/*!
  * jQuery Validation Plugin v1.15.0
  *
  * http://jqueryvalidation.org/
@@ -152,7 +152,7 @@ $.extend( $.fn, {
 			case "add":
 				$.extend( existingRules, $.validator.normalizeRule( argument ) );
 
-				// Remove messages from rules, but allow them to be set separately
+				// Delete messages from rules, but allow them to be set separately
 				delete existingRules.messages;
 				staticRules[ element.name ] = existingRules;
 				if ( argument.messages ) {
@@ -512,7 +512,7 @@ $.extend( $.validator, {
 					};
 				} );
 
-				// Remove items from success list
+				// Delete items from success list
 				this.successList = $.grep( this.successList, function( element ) {
 					return !( element.name in errors );
 				} );

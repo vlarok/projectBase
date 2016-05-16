@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using BLL.Service;
 using DAL;
 using Domain;
 
@@ -13,13 +14,21 @@ namespace Web.Controllers
 {
     public class AuthorBookController : Controller
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
+        private AuhtorBookService _service;
+        private AuthorService _author;
+        private BookService _book;
 
+        public AuthorBookController(AuhtorBookService service, AuthorService author, BookService book)
+        {
+            _service = service;
+            _book = book;
+            _author = author;
+        }
         // GET: AuthorBook
         public ActionResult Index()
         {
-            var autohorBooks = db.AutohorBooks.Include(a => a.Author).Include(a => a.Book);
-            return View(autohorBooks.ToList());
+           // var autohorBooks = db.AutohorBooks.Include(a => a.Author).Include(a => a.Book);
+            return View(_service.All());
         }
 
         // GET: AuthorBook/Details/5
@@ -29,7 +38,7 @@ namespace Web.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            AuthorBook authorBook = db.AutohorBooks.Find(id);
+            AuthorBook authorBook = _service.Find(id);
             if (authorBook == null)
             {
                 return HttpNotFound();
@@ -40,8 +49,8 @@ namespace Web.Controllers
         // GET: AuthorBook/Create
         public ActionResult Create()
         {
-            ViewBag.AuthorId = new SelectList(db.Authors, "AuthorId", "FirstName");
-            ViewBag.BookId = new SelectList(db.Books, "BookId", "Title");
+            ViewBag.AuthorId = new SelectList(_author.All(), "AuthorId", "FirstName");
+            ViewBag.BookId = new SelectList(_book.All(), "BookId", "Title");
             return View();
         }
 
@@ -54,13 +63,12 @@ namespace Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.AutohorBooks.Add(authorBook);
-                db.SaveChanges();
+                _service.Add(authorBook);
                 return RedirectToAction("Index");
             }
 
-            ViewBag.AuthorId = new SelectList(db.Authors, "AuthorId", "FirstName", authorBook.AuthorId);
-            ViewBag.BookId = new SelectList(db.Books, "BookId", "Title", authorBook.BookId);
+            ViewBag.AuthorId = new SelectList(_author.All(), "AuthorId", "FirstName", authorBook.AuthorId);
+            ViewBag.BookId = new SelectList(_book.All(), "BookId", "Title", authorBook.BookId);
             return View(authorBook);
         }
 
@@ -71,13 +79,13 @@ namespace Web.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            AuthorBook authorBook = db.AutohorBooks.Find(id);
+            AuthorBook authorBook = _service.Find(id);
             if (authorBook == null)
             {
                 return HttpNotFound();
             }
-            ViewBag.AuthorId = new SelectList(db.Authors, "AuthorId", "FirstName", authorBook.AuthorId);
-            ViewBag.BookId = new SelectList(db.Books, "BookId", "Title", authorBook.BookId);
+            ViewBag.AuthorId = new SelectList(_author.All(), "AuthorId", "FirstName", authorBook.AuthorId);
+            ViewBag.BookId = new SelectList(_book.All(), "BookId", "Title", authorBook.BookId);
             return View(authorBook);
         }
 
@@ -90,12 +98,11 @@ namespace Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(authorBook).State = EntityState.Modified;
-                db.SaveChanges();
+                _service.Update(authorBook);
                 return RedirectToAction("Index");
             }
-            ViewBag.AuthorId = new SelectList(db.Authors, "AuthorId", "FirstName", authorBook.AuthorId);
-            ViewBag.BookId = new SelectList(db.Books, "BookId", "Title", authorBook.BookId);
+            ViewBag.AuthorId = new SelectList(_author.All(), "AuthorId", "FirstName", authorBook.AuthorId);
+            ViewBag.BookId = new SelectList(_book.All(), "BookId", "Title", authorBook.BookId);
             return View(authorBook);
         }
 
@@ -106,7 +113,7 @@ namespace Web.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            AuthorBook authorBook = db.AutohorBooks.Find(id);
+            AuthorBook authorBook = _service.Find(id);
             if (authorBook == null)
             {
                 return HttpNotFound();
@@ -119,9 +126,7 @@ namespace Web.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            AuthorBook authorBook = db.AutohorBooks.Find(id);
-            db.AutohorBooks.Remove(authorBook);
-            db.SaveChanges();
+            _service.Delete(id);
             return RedirectToAction("Index");
         }
 
@@ -129,7 +134,7 @@ namespace Web.Controllers
         {
             if (disposing)
             {
-                db.Dispose();
+                _service.Dispose();
             }
             base.Dispose(disposing);
         }
