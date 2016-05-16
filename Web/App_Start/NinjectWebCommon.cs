@@ -1,4 +1,7 @@
+using BLL.Factories;
 using BLL.Service;
+using DAL;
+using DAL.Repositories;
 
 [assembly: WebActivatorEx.PreApplicationStartMethod(typeof(Web.App_Start.NinjectWebCommon), "Start")]
 [assembly: WebActivatorEx.ApplicationShutdownMethodAttribute(typeof(Web.App_Start.NinjectWebCommon), "Stop")]
@@ -63,7 +66,14 @@ namespace Web.App_Start
         /// <param name="kernel">The kernel.</param>
         private static void RegisterServices(IKernel kernel)
         {
+            kernel.Bind<ApplicationDbContext>().To<ApplicationDbContext>().InRequestScope();
+
+            kernel.Bind<WebRepository>().To<WebRepository>().InRequestScope();
+
+            kernel.Bind<WebFactory>().To<WebFactory>().InRequestScope();
+
             kernel.Bind<WebService>().To<WebService>().InRequestScope();
-        }        
+
+        }
     }
 }

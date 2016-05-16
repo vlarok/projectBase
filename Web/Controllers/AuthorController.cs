@@ -16,6 +16,8 @@ namespace Web.Controllers
     {
         private ApplicationDbContext db = new ApplicationDbContext();
         private WebService _service;
+
+      
       public AuthorController(WebService service)
         {
             _service = service;

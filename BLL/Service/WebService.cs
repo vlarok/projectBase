@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BLL.DTO;
+using BLL.Factories;
+using DAL.Repositories;
 using Domain;
 
 namespace BLL.Service
@@ -11,10 +13,11 @@ namespace BLL.Service
     public class WebService
     {
         private DAL.Interfaces.IWebRepository _repo;
-        private Factories.AuthorFactory _factory;
-        public WebService()
+        private Factories.WebFactory _factory;
+        public WebService(WebFactory factory, WebRepository repo)
         {
-            this._repo = new DAL.Repositories.WebRepository(new DAL.ApplicationDbContext());
+            this._repo = repo;
+            this._factory = factory;
         }
 
         public List<AuthorDTO> GetDTOAuthors()

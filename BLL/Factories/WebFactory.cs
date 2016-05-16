@@ -8,7 +8,7 @@ using Domain;
 
 namespace BLL.Factories
 {
-    public class AuthorFactory
+    public class WebFactory
     {
         public AuthorDTO createBasicDTO(Author author)
         {
